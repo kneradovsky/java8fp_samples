@@ -1,7 +1,10 @@
 import javaslang.control.Try;
 import org.junit.Assert;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import ru.sbt.qa.bdd.AutotestError;
 import ru.sbt.qa.bdd.db.Db;
+import ru.sbt.qa.bdd.pageFactory.ElementTitle;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -12,7 +15,32 @@ import java.util.function.Predicate;
  * Created by sbt-neradovskiy-kl on 19.01.2016.
  */
 public class MultipleChecksFP {
+    private static WebDriver driver;
+
+
+    @ElementTitle(value = "Название типа вклада")
+    private WebElement nameDepositLink;
+
+    @ElementTitle(value = "Сумма вклада")
+    private WebElement amountDepositLink;
+
+    @ElementTitle(value = "Дата окончания вклада")
+    private WebElement dateDepositLink;
+
+    @ElementTitle(value = "Доступно для снятия")
+    private WebElement maxAmountDepositLink;
+
+    @ElementTitle(value = "Сумма неснижаемого остатка")
+    private WebElement amountLink;
+
+    @ElementTitle(value = "Номер счета")
+    private WebElement accountLink;
+
+    @ElementTitle(value = "Кнопка 'Операции по вкладу'")
+    private WebElement operationButton;
+
     Map<String,Predicate<Map<String,String>>> checkMap = new HashMap<>();
+
     Map<String,String> currencies = new HashMap<>();
     {
         currencies.put("руб.","РОССИЙСКИЙ РУБЛЬ");
@@ -21,24 +49,22 @@ public class MultipleChecksFP {
     }
 
     {
+        checkMap.put("Код валюты",exp -> {
+            String currency = amountDepositLink.getText().replaceAll("[^(руб.|\\\\$|€)]", "");
+            //change to optional
+            return Optional.ofNullable(currencies.get(currency))
+                    .orElseThrow(()->new AutotestError("Валюта:" + currency + " - не совпадает"))
+                    .equals(exp.get("NAME"));
+        });
         checkMap.put("Имя счета",exp -> exp.get("ACCOUNT_NAME").equals(nameDepositLink.getText()));
         checkMap.put("Дата закрытия",exp -> {
             SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-            Date date = sdf1.parse(exp.get("CLOSE_DATE"));
+            Date date = Try.of(()->sdf1.parse(exp.get("CLOSE_DATE")))
+                    .onFailure(ex->{throw new AutotestError("parse date error",ex);}).get();
             SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
             return sdf.format(date).equals(dateDepositLink.getText());
         });
-        checkMap.put("Код валюты",exp -> {
-            String currency = amountDepositLink.getText().replaceAll("[^(руб.|\\\\$|€)]", "");
-            switch (currency) {
-                case "руб.": return "РОССИЙСКИЙ РУБЛЬ".equals(exp.get("NAME"));
-                case "$": return "ДОЛЛАР США".equals(exp.get("NAME"));
-                case "€": return "ЕВРО".equals(exp.get("NAME"));
-                default: return false;
-                    throw new AutotestError("Валюта:" + currency + " - не совпадает");
-            }
-            //change to optional
-        });
+
         checkMap.put("Сумма неснижаемого остатка",exp -> {
             String minBalanceAmountStr = exp.get("MIN_BALANCE_AMOUNT");
             String minBalanceAmount = String.format("%.2f", Double.parseDouble(minBalanceAmountStr));
@@ -58,7 +84,7 @@ public class MultipleChecksFP {
             return maxBalanceAmount.equals(amountmaxIF);
         });
     }
-    /*
+
     public void проверяет_значение_поля(String name) throws Throwable {
         String query = "select * from deposit_and_account_data";
         Map<String, String> expected = Db.fetchAll(query, "main").get(0);
@@ -67,5 +93,5 @@ public class MultipleChecksFP {
                 .orElseThrow(()->new AutotestError("Неожиданное поле"))
                 .test(expected));
     }
-    */
+
 }

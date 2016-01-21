@@ -106,6 +106,7 @@ public class MultipleChecks {
             case "Сумма вклада":
                 checkBalanceAmount(fetchAll.get(0).get("BALANCE_AMOUNT"));
                 break;
+
             default:
                 throw new AutotestError("Неожиданное поле");
         }

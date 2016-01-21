@@ -3,6 +3,8 @@ import ru.sbt.qa.bdd.AutotestError;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -15,7 +17,9 @@ public class CollectionsRef {
         for(WebElement el : listEls) {
             if(el.getText().equals(text)) return el;
         }
-        return null;
+        //return null;
+        return listEls.stream().filter(WebElement::isDisplayed)
+                .filter(e->!e.getAttribute("id").isEmpty()).findFirst().orElse(null);
     }
 
     public void clickOnElementsContainingText(String text) {
@@ -27,6 +31,9 @@ public class CollectionsRef {
             }
         if(!found) throw new AutotestError("No elements were found");
         }
+        listEls.stream().filter(el->el.getText().contains(text))
+                .peek(WebElement::click)
+                .findAny().orElseThrow(()->new AutotestError("No elements were found"));
     }
 
     public List<WebElement> filterElementByAttribute(String attrName,String attrVal) {
@@ -34,7 +41,9 @@ public class CollectionsRef {
         for(WebElement el : listEls) {
             if(el.getAttribute(attrName).equals(attrVal)) filtered.add(el);
         }
-        return filtered;
+        //return filtered;
+        return listEls.stream().filter(el->el.getAttribute(attrName).equals(attrVal))
+                .collect(Collectors.toList());
     }
 
     public void methodStub() {
