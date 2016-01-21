@@ -37,4 +37,8 @@ public class CollectionsRef {
         return filtered;
     }
 
+    public void methodStub() {
+
+    }
+
 }
