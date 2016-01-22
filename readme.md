@@ -9,6 +9,6 @@ WebDriverWait & findElement
 	* WebDriverWaitRef - original code
 	* WebDriverWaitFP - FP code
 
-## Теги
-Тег: initial - оригинальный процедурный код
-Тег: stage1 - код с элементами ФП
+## Commits
+Commit: stub method added - оригинальный процедурный код
+Commit: afterparty commit - код с элементами ФП
