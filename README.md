@@ -16,7 +16,8 @@ WebDriverWait & findElement
 	* WebDriverWaitRef - original code
 	* WebDriverWaitFP - FP code
 
-## Commits
-Commit: stub method added - оригинальный процедурный код
+## Branches
 
-Commit: afterparty commit - код с элементами ФП
+Branch: oldFashionedCode,  - оригинальный процедурный код
+
+Branch: master. Tag: FunctionalCode - код с элементами ФП
