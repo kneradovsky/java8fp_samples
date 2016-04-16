@@ -46,8 +46,4 @@ public class CollectionsRef {
                 .collect(Collectors.toList());
     }
 
-    public void methodStub() {
-
-    }
-
 }
