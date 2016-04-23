@@ -1,53 +1,84 @@
-
-
-import javaslang.collection.Array;
-import javaslang.collection.Stream;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.junit.runner.Runner;
 import org.junit.runners.JUnit4;
-import org.openqa.selenium.WebElement;
 
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
+import static org.hamcrest.core.AllOf.allOf;
+import static org.hamcrest.core.CombinableMatcher.both;
 import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assume.assumeThat;
 
 /**
  * Created by vk on 22.04.16.
  */
 @RunWith(JUnit4.class)
 public class CollectionsTest {
-    Function<String,Function<Predicate<Array<Integer>>,BaseMatcher<Array<Integer>>>>
-            createMatcher = desc -> pred -> new BaseMatcher<Array<Integer>>() {
+    Function<String, Function<Predicate<Integer[]>, BaseMatcher<Integer[]>>>
+            createMatcher = desc -> pred -> new BaseMatcher<Integer[]>() {
         @Override
         public boolean matches(Object o) {
-            return pred.test((Array<Integer>)o);
+            return pred.test((Integer[]) o);
         }
 
         @Override
         public void describeTo(Description description) {
             description.appendText(desc);
         }
-    };    @Before
+    };
+
+
+    BaseMatcher<Integer[]> testEvens = createMatcher.apply("Ожидаются только четные числа")
+            .apply(arr -> !Stream.of(arr).filter(i -> i % 2 != 0).findFirst().isPresent());
+
+
+    Function<Integer, BaseMatcher<Integer[]>> testDiv = div -> createMatcher.apply("Ожидаются только четные числа")
+            .apply(arr -> !Stream.of(arr).filter(i -> i % div != 0).findFirst().isPresent());
+
+
+    Function<Integer, BaseMatcher<Integer[]>> testLen = len -> createMatcher.apply("Ожидается длина " + len)
+            .apply(arr -> arr.length == len);
+
+
+    Integer[] evens, odds;
+
+
+    @Before
     public void BeforeTests() {
+        evens = Stream.generate(Math::random)
+                .map(d -> ((int) (d * 1000)) % 1000).filter(i -> i % 2 == 0)
+                .limit(1000)
+                .toArray((len) -> new Integer[len]);
 
     }
     public CollectionsTest() {};
 
     @Test
     public void testEven() {
-        Array<Integer> evens = Stream.gen(Math::random).take(1000)
-                .map( d -> ((int)(d*1000))%1000).filter( i -> i%2==0).toArray();
 
-        BaseMatcher<Array<Integer>> testEvens = createMatcher.apply("Arrays contains an odd number")
-                                                .apply(arr -> arr.toStream().exists(i-> i%2==0));
-        assertThat("only evens",evens,testEvens);
-        assertThat("odds",evens,not(testEvens));
+        BaseMatcher<Integer[]> testEvens = createMatcher.apply("Ожидаются только четные числа")
+                .apply(arr -> !Stream.of(arr).filter(i -> i % 2 != 0).findFirst().isPresent());
+        assumeThat("assuming only evens", evens, testEvens);
+        assertThat("only evens", evens, allOf(testEvens, testLen.apply(1000)));
+    }
+
+    @Test
+    public void testOdds() {
+        odds = Stream.generate(Math::random)
+                .map(d -> ((int) (d * 1000)) % 1000).filter(i -> i % 2 != 0)
+                .filter(i -> i % 3 == 0)
+                .limit(500)
+                .toArray((len) -> new Integer[len]);
+
+        assumeThat("assume only odds", odds, not(testDiv.apply(2)));
+        assertThat("делятся на 3 и длина равна 500", odds, both(testDiv.apply(3)).and(testLen.apply(500)));
+
     }
 
 }
