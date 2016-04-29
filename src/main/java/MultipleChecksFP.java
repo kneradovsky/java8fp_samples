@@ -7,8 +7,11 @@ import ru.sbt.qa.bdd.db.Db;
 import ru.sbt.qa.bdd.pageFactory.ElementTitle;
 
 import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.function.BiPredicate;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
@@ -49,7 +52,11 @@ public class MultipleChecksFP {
     }
 
     {
+        Map<String, Function<String, Predicate<WebElement>>> funMap1;
+        Function<String, Predicate<WebElement>> ch1 = s -> e -> e.getText().equals(s);
+
         checkMap.put("Код валюты",exp -> {
+            ch1.apply("test").test(accountLink);
             String currency = amountDepositLink.getText().replaceAll("[^(руб.|\\\\$|€)]", "");
             //change to optional
             return Optional.ofNullable(currencies.get(currency))

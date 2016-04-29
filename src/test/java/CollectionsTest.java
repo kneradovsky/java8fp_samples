@@ -11,7 +11,6 @@ import java.util.stream.Stream;
 
 import static org.hamcrest.core.AllOf.allOf;
 import static org.hamcrest.core.CombinableMatcher.both;
-import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assume.assumeThat;
 
@@ -20,7 +19,7 @@ import static org.junit.Assume.assumeThat;
  */
 @RunWith(JUnit4.class)
 public class CollectionsTest {
-    Function<String, Function<Predicate<Integer[]>, BaseMatcher<Integer[]>>>
+    static Function<String, Function<Predicate<Integer[]>, BaseMatcher<Integer[]>>>
             createMatcher = desc -> pred -> new BaseMatcher<Integer[]>() {
         @Override
         public boolean matches(Object o) {
@@ -42,7 +41,7 @@ public class CollectionsTest {
             .apply(arr -> !Stream.of(arr).filter(i -> i % div != 0).findFirst().isPresent());
 
 
-    Function<Integer, BaseMatcher<Integer[]>> testLen = len -> createMatcher.apply("Ожидается длина " + len)
+    static Function<Integer, BaseMatcher<Integer[]>> testLen = len -> createMatcher.apply("Ожидается длина " + len)
             .apply(arr -> arr.length == len);
 
 
@@ -76,7 +75,7 @@ public class CollectionsTest {
                 .limit(500)
                 .toArray((len) -> new Integer[len]);
 
-        assumeThat("assume only odds", odds, not(testDiv.apply(2)));
+        assumeThat("assume only odds", odds, testDiv.apply(2));
         assertThat("делятся на 3 и длина равна 500", odds, both(testDiv.apply(3)).and(testLen.apply(500)));
 
     }
