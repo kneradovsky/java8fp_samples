@@ -10,6 +10,7 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import static org.hamcrest.core.AllOf.allOf;
+import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.CombinableMatcher.both;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assume.assumeThat;
@@ -37,7 +38,7 @@ public class CollectionsTest {
             .apply(arr -> !Stream.of(arr).filter(i -> i % 2 != 0).findFirst().isPresent());
 
 
-    Function<Integer, BaseMatcher<Integer[]>> testDiv = div -> createMatcher.apply("Ожидаются только четные числа")
+    Function<Integer, BaseMatcher<Integer[]>> testDiv = div -> createMatcher.apply("Ожидаются числа, делящиеся на "+div)
             .apply(arr -> !Stream.of(arr).filter(i -> i % div != 0).findFirst().isPresent());
 
 
@@ -75,8 +76,8 @@ public class CollectionsTest {
                 .limit(500)
                 .toArray((len) -> new Integer[len]);
 
-        assumeThat("assume only odds", odds, testDiv.apply(2));
-        assertThat("делятся на 3 и длина равна 500", odds, both(testDiv.apply(3)).and(testLen.apply(500)));
+        assumeThat("assume only odds", odds, not(testDiv.apply(2)));
+        assertThat("делятся на 3 и длина равна 500", odds, both(testDiv.apply(2)).and(testLen.apply(500)));
 
     }
 
