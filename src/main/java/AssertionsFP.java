@@ -16,6 +16,7 @@ import static org.junit.Assert.assertThat;
  */
 public class AssertionsFP {
 
+    //типизированный матчер 2 параметра
     public static <T> BiFunction<String, Predicate<T>, BaseMatcher<T>> typedMatcher2(Class<T> cls) {
         return (desc, pred) -> new BaseMatcher<T>() {
             @Override
@@ -30,6 +31,7 @@ public class AssertionsFP {
         };
     }
 
+    //типизиованный матчер 1 -> 1 параметр
     public static <T> Function<String, Function<Predicate<T>, BaseMatcher<T>>> typedMatcher1(Class<T> cls) {
         return desc -> pred -> new BaseMatcher<T>() {
             @Override
@@ -44,7 +46,7 @@ public class AssertionsFP {
         };
     }
 
-
+    //матчер для веб элемента
     public static Function<String, Function<Predicate<WebElement>, BaseMatcher<WebElement>>>
             createMatcher = desc -> pred -> new BaseMatcher<WebElement>() {
         @Override
@@ -58,10 +60,14 @@ public class AssertionsFP {
         }
     };
 
+    //фиксация сообщения
     Function<Predicate<WebElement>,BaseMatcher<WebElement>> simpleDescMatcher = createMatcher.apply("WebElement check failed");
+
     BaseMatcher<WebElement> isEnabled = simpleDescMatcher.apply(WebElement::isEnabled);
+
     BaseMatcher<WebElement> hasSomeText = createMatcher.apply("WebElement doesn't contain 'SomeText'")
                                     .apply(e->e.getText().contains("SomeText"));
+
     public void testAssertions(WebElement elem2Test) {
 
         assertThat(elem2Test,anyOf(isEnabled,hasSomeText));

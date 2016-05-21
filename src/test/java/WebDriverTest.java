@@ -74,10 +74,12 @@ public class WebDriverTest {
     public void extractSearchResultsTest() {
         searchInput.sendKeys("qaconf Омск");
         searchBtn.click();
+        //собственное ожидание в wdw
         longWait.until((WebDriver drv) -> tryFindElement.apply(drv).apply(By.cssSelector("div.input__found"))
                 .filter(WebElement::isDisplayed)
                 .filter(e -> !e.getText().isEmpty())
                 .orElse(null));
+
         List<WebElement> searchResults = drv.findElements(By.cssSelector("div.serp-list div.serp-item > h2.serp-item__title > a"));
         List<String> searchTitles = searchResults.stream().map((el) -> el.getText()).collect(Collectors.toList());
 

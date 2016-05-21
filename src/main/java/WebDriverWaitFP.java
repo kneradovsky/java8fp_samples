@@ -43,23 +43,27 @@ public class WebDriverWaitFP {
 
     protected WebElement tryWaitForElement(By selector) {
 
-        Try.of(() -> longWait.until((WebDriver d) -> findElementOnPage(selector).orElse(null)))
+        return Try.of(() -> longWait.until((WebDriver d) -> findElementOnPage(selector).orElse(null)))
                 .andThen(WebElement::click)
                 .onFailure(rethrowAutoException.apply("Элемент не найден")).get();
 
+    }
 
+    protected Try<WebElement> findElementOnPage(By selector) {
+        return Try.of(() -> driver.findElement(selector));
+    }
+
+    public void samples(By selector) {
         findElementOnPage(selector).map(WebElement::getText)
                 .onFailure(rethrowAutoException.apply("text"));
 
         WebElement table = findElementOnPage(By.id("table")).onFailure(rethrowAutoException.apply("text")).get();
 
 
+        //фиксация контекста
         final Function<By, Try<WebElement>> searchInTable = tryFindElement.apply(table);
+        //поиск элемента к контексте
         searchInTable.apply(By.xpath(".//td"));
-        return null;
-    }
 
-    protected Try<WebElement> findElementOnPage(By selector) {
-        return Try.of(() -> driver.findElement(selector));
     }
 }
