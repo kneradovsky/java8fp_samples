@@ -5,6 +5,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -45,10 +46,6 @@ public class CollectionsTest {
 
     static Function<Integer, BaseMatcher<Integer[]>> testLen = len -> createMatcher.apply("Ожидается длина " + len)
             .apply(arr -> arr.length == len);
-
-    BiFunction<String,Integer[],BaseMatcher<Integer[]>> arrayMatcherSupp = typedMatcher2(Integer[].class)
-    Function<Integer, BaseMatcher<Integer[]>> testLen2 = len -> arrayMatcherSupp.apply("Ожидается длина " + len,arr -> arr.length == len);
-
     
 
     Integer[] evens, odds;
